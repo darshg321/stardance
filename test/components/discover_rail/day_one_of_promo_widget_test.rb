@@ -15,7 +15,7 @@ class DiscoverRail::DayOneOfPromoWidgetTest < ViewComponent::TestCase
     assert_selector "button.day-one-of-promo__idea[data-action='day-one-of-promo#shuffle']" do
       assert_selector "[data-day-one-of-promo-target='idea']", text: DiscoverRail::DayOneOfPromoWidget::IDEAS.first
     end
-    assert_selector "a.day-one-of-promo__button[href='#{DiscoverRail::DayOneOfPromoWidget::URL}']", text: "Start day one"
+    assert_selector "a.day-one-of-promo__button[href='/promos/day_one_of']", text: "Start day one"
   end
 
   test "is hidden while platform ads are off" do

@@ -9,6 +9,7 @@ module DiscoverRail
     end
 
     URL = "https://dayoneof.hackclub.com/?utm_source=stardance&utm_medium=discover_rail"
+    CLICK_EVENT = "day_one_of_promo_clicked"
     IDEAS = [
       "Day one of learning piano from scratch",
       "Day one of learning to solder your first PCB",
