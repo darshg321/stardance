@@ -1,8 +1,15 @@
 require "test_helper"
 
 class DiscoverRail::DayOneOfPromoWidgetTest < ViewComponent::TestCase
-  setup { Flipper.enable(:platform_ads) }
-  teardown { Flipper.disable(:platform_ads) }
+  setup do
+    Flipper.enable(:platform_ads)
+    Flipper.enable(:"dayoneof-promo")
+  end
+
+  teardown do
+    Flipper.disable(:"dayoneof-promo")
+    Flipper.disable(:platform_ads)
+  end
 
   test "registers under the day_one_of_promo slug" do
     assert_equal DiscoverRail::DayOneOfPromoWidget, DiscoverRail::BaseWidget.registry[:day_one_of_promo]
@@ -20,6 +27,13 @@ class DiscoverRail::DayOneOfPromoWidgetTest < ViewComponent::TestCase
 
   test "is hidden while platform ads are off" do
     Flipper.disable(:platform_ads)
+
+    render_inline(DiscoverRail::DayOneOfPromoWidget.new)
+    assert_no_selector "section"
+  end
+
+  test "is hidden while the dayoneof promo flag is off" do
+    Flipper.disable(:"dayoneof-promo")
 
     render_inline(DiscoverRail::DayOneOfPromoWidget.new)
     assert_no_selector "section"

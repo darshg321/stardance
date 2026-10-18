@@ -5,7 +5,7 @@ module DiscoverRail
     register_as :day_one_of_promo
 
     def render?
-      helpers.platform_ads_enabled?(user)
+      helpers.platform_ads_enabled?(user) && Flipper.enabled?(:"dayoneof-promo", user)
     end
 
     URL = "https://dayoneof.hackclub.com/?utm_source=stardance&utm_medium=discover_rail"
