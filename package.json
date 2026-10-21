@@ -9,12 +9,12 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "@fullstory/browser": "^2.1.0",
+    "@fullstory/browser": "^2.1.2",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.23",
     "@rails/actioncable": "^8.1.400",
-    "@rails/activestorage": "^8.1.301",
-    "@videojs/html": "10.0.0-rc.2",
+    "@rails/activestorage": "^8.1.400",
+    "@videojs/html": "10.0.1",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
     "chartkick": "^5.0.1",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.28.2",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.9"
   },
   "packageManager": "yarn@4.16.0"
 }

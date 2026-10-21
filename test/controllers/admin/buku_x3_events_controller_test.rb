@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Admin::BukuX3EventsControllerTest < ActionDispatch::IntegrationTest
+  teardown { Flipper.disable(:"justin-melena") }
+
   setup do
     @admin = users(:tongyu)
     @event = BukuX3::Event.create!(key: BukuX3::Event::KEY, unlocked_at: 1.day.ago,
@@ -160,6 +162,51 @@ class Admin::BukuX3EventsControllerTest < ActionDispatch::IntegrationTest
       get admin_jim_takeover_path
     end
     assert_response :not_found
+  end
+
+  test "jim takeover shows live poll totals and recent votes without counting voters as dismissals" do
+    Flipper.enable(:"justin-melena")
+    travel_to Time.zone.local(2026, 10, 19, 12) do
+      PollVote.delete_all
+      now = Time.current
+      PollVote.insert_all!([
+        { user_id: users(:one).id, choice: "justin", created_at: 2.days.ago, updated_at: now },
+        { user_id: users(:two).id, choice: "justin", created_at: 24.hours.ago, updated_at: now },
+        { user_id: @admin.id, choice: "melena", created_at: now, updated_at: now }
+      ])
+      users(:one).dismiss_thing!(PollVote::DISMISS_THING)
+      dismissed = User.where.not(id: PollVote.select(:user_id)).first!
+      dismissed.dismiss_thing!(PollVote::DISMISS_THING)
+      @admin.update!(onboarded_at: now)
+      sign_in @admin
+
+      get admin_jim_takeover_path
+
+      assert_response :success
+      assert_select "#poll-results", count: 1
+      assert_select ".poll-results__total", text: /3 votes/
+      assert_select ".poll-results__label", text: /justin jimberjake.*67% · 2 votes/m
+      assert_select ".poll-results__label", text: /melena momez.*33% · 1 vote/m
+      assert_select "section[aria-labelledby='jimberjake-poll-heading']" do
+        assert_select ".admin-dashboard__metric", text: /votes in the last 24 hours\s+2/
+        assert_select ".admin-dashboard__metric", text: /dismissed without voting\s+1/
+        assert_select "turbo-cable-stream-source", count: 1
+        assert_select "a[href=?]", admin_poll_results_path
+      end
+      assert_select ".poll-popup", count: 0
+    end
+  end
+
+  test "jim takeover handles a poll with no votes" do
+    Flipper.enable(:"justin-melena")
+    PollVote.delete_all
+    sign_in @admin
+
+    get admin_jim_takeover_path
+
+    assert_response :success
+    assert_select ".poll-results__total", text: /0 votes/
+    assert_select ".poll-results__bar[value='0']", count: 2
   end
 
   test "the takeover says when crescent ad clicks are not being stored" do

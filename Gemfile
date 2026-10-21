@@ -2,7 +2,7 @@
 source "https://rubygems.org", cooldown: 7
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.4"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
@@ -125,13 +125,15 @@ gem "phlex-rails"
 gem "aws-sdk-s3"
 gem "rubyzip", "~> 3.7"
 gem "faraday"
+# json 3.0 breaks faraday response parsing (hcb grants) and db:schema:dump
+gem "json", "< 3"
 gem "faraday-retry"
 
 gem "faker", "~> 3.6"
 gem "jsbundling-rails", "~> 1.3"
 
 # for pagination
-gem "pagy", "~> 43.6"
+gem "pagy", "~> 43.7"
 gem "norairrecord"
 gem "anthropic", "~> 1.67"
 

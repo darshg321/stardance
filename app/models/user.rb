@@ -4,6 +4,7 @@
 #
 #  id                               :bigint           not null, primary key
 #  age_attestation                  :string
+#  aged_out_on                      :date
 #  api_key                          :string
 #  approx_balance                   :integer          default(0), not null
 #  approx_total_earned              :integer          default(0), not null
@@ -61,9 +62,9 @@
 # Indexes
 #
 #  index_users_on_api_key                    (api_key) UNIQUE
-#  index_users_on_approx_balance             (approx_balance)
-#  index_users_on_approx_total_earned        (approx_total_earned)
-#  index_users_on_display_name_trgm          (display_name) USING gin
+#  index_users_on_approx_balance             (approx_balance DESC)
+#  index_users_on_approx_total_earned        (approx_total_earned DESC)
+#  index_users_on_display_name_trgm          (display_name gin_trgm_ops) USING gin
 #  index_users_on_email                      (email)
 #  index_users_on_guest_email                (guest_email)
 #  index_users_on_lower_display_name_unique  (lower((display_name)::text)) UNIQUE WHERE ((display_name IS NOT NULL) AND ((display_name)::text <> ''::text))
@@ -164,6 +165,28 @@ class User < ApplicationRecord
 
   def age_blocked?
     age_attestation_ineligible? && manual_ysws_override != true
+  end
+
+  # Signed up at 13-18 and has since turned 19. They keep their account so they
+  # can ship what they already built and spend the stardust they already have,
+  # but Hackatime time logged after their 19th birthday doesn't count.
+  def aged_out? = aged_out_on.present?
+
+  def time_logging_cutoff = aged_out_on&.beginning_of_day
+
+  # The day they turned 19, if they onboarded at 13-18 and are 19 or older now.
+  def turned_19_on(birthday)
+    return nil if birthday.nil? || onboarded_at.nil?
+    return nil unless age_on(birthday, onboarded_at.to_date).between?(13, 18)
+    return nil unless age_on(birthday, Date.current) > 18
+
+    birthday + 19.years
+  end
+
+  def age_on(birthday, date)
+    age = date.year - birthday.year
+    age -= 1 if date < birthday + age.years
+    age
   end
 
   # Turned off for a reviewer whose fraud work should not earn stardust. Only

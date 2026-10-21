@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_13_135606) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -847,6 +847,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_135606) do
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
     t.index ["record_type", "record_id"], name: "index_notifications_on_record_type_and_record_id"
     t.index ["type", "created_at"], name: "index_notifications_on_type_and_created_at"
+  end
+
+  create_table "poll_votes", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "choice", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_poll_votes_on_user_id", unique: true
   end
 
   create_table "post_devlogs", force: :cascade do |t|
@@ -1733,6 +1741,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_135606) do
 
   create_table "users", force: :cascade do |t|
     t.string "age_attestation"
+    t.date "aged_out_on"
     t.string "api_key"
     t.integer "approx_balance", default: 0, null: false
     t.integer "approx_total_earned", default: 0, null: false
@@ -2004,6 +2013,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_135606) do
   add_foreign_key "mission_submissions", "users", column: "reviewed_by_id"
   add_foreign_key "notifications", "users", column: "actor_id", on_delete: :nullify
   add_foreign_key "notifications", "users", column: "recipient_id", on_delete: :cascade
+  add_foreign_key "poll_votes", "users"
   add_foreign_key "post_reposts", "posts", column: "original_post_id"
   add_foreign_key "post_reposts", "users"
   add_foreign_key "post_views", "posts"
